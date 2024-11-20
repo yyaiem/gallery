@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery</title>
+    <style>
+        @font-face {
+            font-family: 'warpen';
+            /* Name of the font */
+            src: url('./Warpen.ttf') format('truetype');
+            /* Path to the .ttf file */
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #005d57;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            padding: 20px;
+        }
+
+        .grid-item {
+            background-color: #ffffff36;
+            border: none;
+            border-radius: 8px;
+            text-align: center;
+            overflow: hidden;
+            transition: transform 0.02s ease;
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .grid-item:hover {
+            transform: scale(1.25);
+            background-color: #ff8b8ba2;
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .grid-item a {
+            text-decoration: none;
+            color: #333;
+            display: block;
+            padding: 10px;
+        }
+
+        .fileNames {
+            color: white;
+
+        }
+
+        .fileNameContainer {
+            margin: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            overflow: unset;
+        }
+
+        .content_container {
+            display: none;
+        }
+
+        .headtext {
+            color: white;
+            font-size: 30px;
+            font-family: 'warpen', 'Lucida Sans', Verdana, sans-serif;
+            margin: 2px;
+        }
+
+        .headContainer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 4px;
+            padding: 4px;
+            background-color: #ffffff36;
+            border-radius: 8px;
+        }
+        .footrbar{
+            margin: 4px;
+            border-radius: 8px;
+
+            padding: 4px;
+            background-color: #ffffff38;
+        }
+        .profilePic{
+            height: 30px;
+            border-radius: 50%;
+        }
+        .footerList{
+            display: flex;
+            align-items: center;
+            margin: 2px;
+            padding: 2px;
+            color: white;
+        }
+        .footerItem{
+            list-style-type: none;
+            margin: 4px;
+        }
+        .foooterText{
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="site_Body">
+        <div class="content_container" id="content_container">
+        </div>
+    </div>
+
+    <footer>
+        <div class="footrbar">
+            <ul class="footerList">
+                <li class="footerItem"><img class="profilePic" id="profilePic"></li>
+                <li class="footerItem"><p  class="foooterText" >Pinaka</p></li>
+                <li class="footerItem">&COPY;</li>
+                <li class="footerItem"><p class="foooterText"  id="year"></p></li>
+            </ul>
+        </div>
+
+    </footer>
+
+    <script>
+        ImageArray = [
+            ["TechCraft", "1-hRyXJVMLd90Lljj66D1q7dXFYkxKLHt"],
+        ]
+
+        content(ImageArray);
+
+
+        function content(Array) {
+
+            for (let index = 0; index < Array.length; index++) {
+                const element = Array[index];
+
+                let folderId = element[1];
+                let eventName = element[0];
+                document.title = `${eventName} | YantraYodha | Gallery`
+
+                const headContainer = document.createElement("div");
+                headContainer.className = "headContainer"
+
+                const heading = document.createElement('p');
+                heading.className = "headtext"
+
+                heading.innerText = eventName;
+                headContainer.appendChild(heading);
+
+                const grid = document.createElement("div");
+                grid.className = "grid"
+                grid.id = "grid";
+
+                const content_container = document.getElementById("content_container");
+
+                const master = document.createElement("div")
+                master.appendChild(headContainer)
+                master.appendChild(grid)
+
+                content_container.appendChild(master);
+
+                fetchFiles(folderId);
+
+            }
+        }
+
+        async function fetchFiles(folderId) {
+            let scriptUrl = "https://script.google.com/macros/s/AKfycbwqIT-muilpFDLBgm-9Ci1BJFMFwD6Mdn07bLIKdiOxR-3nPkWmpHzMPS89tmB73FrC9w/exec"; // Replace with your Apps Script URL
+            try {
+                const response = await fetch(`${scriptUrl}?folderId=${folderId}`);
+                const files = await response.json();
+                renderFiles(files);
+            } catch (error) {
+                console.error('Error fetching files:', error);
+            }
+        }
+
+        function renderFiles(files) {
+            const grid = document.getElementById('grid');
+            files.forEach(file => {
+
+                const item = document.createElement('div');
+                item.className = 'grid-item';
+                item.onclick = function () {
+                    window.open(file.url, "_blank")
+
+                }
+
+                const img = document.createElement('img');
+                img.src = file.thumbnail;
+                img.alt = file.name;
+
+                const NameContainer = document.createElement('div')
+                NameContainer.className = "fileNameContainer"
+
+
+                const link = document.createElement('p');
+                link.textContent = file.name;
+                link.className = "fileNames"
+                NameContainer.appendChild(link);
+
+                item.appendChild(img);
+                item.appendChild(NameContainer);
+                grid.appendChild(item);
+            });
+            document.getElementById("content_container").style.display = "block"
+        }
+
+        const currentYear = new Date().getFullYear();
+        document.getElementById("year").innerText = currentYear;
+        // console.log(currentYear); // Outputs the current year
+
+
+        const githubUsername = "pin4ka";
+
+        // Fetch GitHub user data
+        fetch(`https://api.github.com/users/${githubUsername}`)
+            .then(response => response.json())
+            .then(data => {
+                const profileImg = document.getElementById('profilePic');
+                profileImg.src = data.avatar_url; // Set the profile picture URL
+                profileImg.alt = `${githubUsername}'s GitHub Profile Picture`;
+            })
+            .catch(error => console.error('Error fetching GitHub data:', error));
+
+
+    </script>
+</body>
+
+</html>
